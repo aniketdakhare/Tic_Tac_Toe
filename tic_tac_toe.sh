@@ -66,15 +66,23 @@ function play_Game()
 	for (( i=0; i<$(($ROWS_COLUMNS*$ROWS_COLUMNS)); i++ ))
 	do
 		board_Display
+		check_win=2
 		case $chance in
 			1)
 				echo -e "---------YOUR CHANCE----------\n"
-				player ;;
+				player
+				check_win=$? ;;
 			0)
-				echo -e "-------COMPUTER'S CHANCE-------\n"
-				computer ;;
+				computer
+				check_win=$? ;;
 		esac
+		if [ $check_win -eq 5 ]
+                then
+			board_Display
+                	return 0
+                fi
 	done
+	echo -e "----Match Tie----\n"
 	board_Display
 }
 
@@ -101,18 +109,46 @@ function player()
 			place_Value[$row,$column]=$PLAYER_SYMBOL
 			if [ $(winner $PLAYER_SYMBOL) -eq 1 ]
 			then
-				echo "Congrats You Won !!!"
+				echo -e "Congrats You Won !!!\n"
+				return 5
 			fi
 			chance=0
 		fi
+	else
+		echo -e "Invalid Input\n"
+		((i--))
 	fi
 }
 
 function computer()
 {
-	echo "Computer"
-	chance=1
+	cell=$(($((RANDOM%9))+1))
+	if [ $cell -le $(($ROWS_COLUMNS*$ROWS_COLUMNS)) ]
+        then
+                row=$(( $cell/$ROWS_COLUMNS ))
+                column=$(( $cell%$ROWS_COLUMNS ))
+                case $column in
+                        0)
+                                row=$(( $row-1 ))
+                                column=$(( $column+2 )) ;;
+                        *)
+                                column=$(( $column-1 )) ;;
+                esac
+                if [ ${place_Value[$row,$column]} == $COMPUTER_SYMBOL ] || [ ${place_Value[$row,$column]} == $PLAYER_SYMBOL ]
+                then
+                        ((i--))
+                else
+                        place_Value[$row,$column]=$COMPUTER_SYMBOL
+                        if [ $(winner $COMPUTER_SYMBOL) -eq 1 ]
+                        then
+                                echo -e "Computer Won !!!\n"
+				return 5
+                        fi
+                        chance=1
+                fi
+        fi
 }
+
 
 function winner()
 {
