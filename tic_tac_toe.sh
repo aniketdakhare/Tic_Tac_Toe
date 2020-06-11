@@ -122,31 +122,13 @@ function player()
 
 function computer()
 {
-	cell=$(($((RANDOM%9))+1))
-	if [ $cell -le $(($ROWS_COLUMNS*$ROWS_COLUMNS)) ]
-        then
-                row=$(( $cell/$ROWS_COLUMNS ))
-                column=$(( $cell%$ROWS_COLUMNS ))
-                case $column in
-                        0)
-                                row=$(( $row-1 ))
-                                column=$(( $column+2 )) ;;
-                        *)
-                                column=$(( $column-1 )) ;;
-                esac
-                if [ ${place_Value[$row,$column]} == $COMPUTER_SYMBOL ] || [ ${place_Value[$row,$column]} == $PLAYER_SYMBOL ]
-                then
-                        ((i--))
-                else
-                        place_Value[$row,$column]=$COMPUTER_SYMBOL
-                        if [ $(winner $COMPUTER_SYMBOL) -eq 1 ]
-                        then
-                                echo -e "Computer Won !!!\n"
-				return 5
-                        fi
-                        chance=1
-                fi
-        fi
+	computer_mind
+	if [ $(winner $COMPUTER_SYMBOL) -eq 1 ]
+	then
+		echo -e "Computer Won !!!\n"
+		return 5
+	fi
+	chance=1
 }
 
 
