@@ -131,6 +131,129 @@ function computer()
 	chance=1
 }
 
+function computer_mind()
+{
+        row_Condition $COMPUTER_SYMBOL $PLAYER_SYMBOL
+        column_Condition $COMPUTER_SYMBOL $PLAYER_SYMBOL
+        digonal_Condition $COMPUTER_SYMBOL $PLAYER_SYMBOL
+}
+
+function row_Condition()
+{
+        local row=0
+        local col=0
+        symbol_1=$1
+        symbol_2=$2
+        for ((row=0; row<ROWS_COLUMNS; row++))
+        do
+                if [ ${place_Value[$row,$col]} == $symbol_1 ] && [ ${place_Value[$(($row)),$(($col+1))]} == $symbol_1 ]
+                then
+                        if [ ${place_Value[$row,$(($col+2))]} != $symbol_2 ]
+                        then
+                                place_Value[$row,$(($col+2))]=$COMP_SYM
+                                break
+                        fi
+                elif [ ${place_Value[$row,$(($col+1))]} == $symbol_1 ] && [ ${place_Value[$row,$(($col+2))]} == $symbol_1 ]
+                then
+                        if [ ${place_Value[$row,$col]} != $symbol_2 ]
+                        then
+                                place_Value[$row,$col]=$COMP_SYM
+                                break
+                        fi
+                elif [ ${place_Value[$row,$col]} == $symbol_1 ] && [ ${place_Value[$row,$(($col+2))]} == $symbol_1 ]
+                then
+                        if [ ${place_Value[$row,$(($col+1))]} != $symbol_2 ]
+                        then
+                                place_Value[$row,$(($col+1))]=$COMP_SYM
+                                break
+                        fi
+                fi
+        done
+}
+
+function column_Condition()
+{
+        local row=0
+        local col=0
+        symbol_1=$1
+        symbol_2=$2
+        for ((col=0; col<ROWS_COLUMNS; col++))
+        do
+                if [ ${place_Value[$row,$col]} == $symbol_1 ] &&  [ ${place_Value[$(($row+1)),$col]} == $symbol_1 ]
+                then
+                        if [ ${place_Value[$(($row+2)),$col]} != $symbol_2 ]
+                        then
+                                place_Value[$(($row+2)),$col]=$COMP_SYM
+                        fi
+                elif [ ${place_Value[$(($row+1)),$col]} == $symbol_1 ] && [ ${place_Value[$(($row+2)),$col]} == $symbol_1 ]
+                then
+                        if [ ${place_Value[$row,$col]} != $symbol_2 ]
+                        then
+                                place_Value[$row,$col]=$COMP_SYM
+                                break
+                        fi
+                elif [ ${place_Value[$row,$col]} == $symbol_1 ] && [ ${place_Value[$(($row+2)),$col]} == $symbol_1 ]
+                then
+                        if [ ${place_Value[$(($row+1)),$col]} != $symbol_2 ]
+                        then
+                                place_Value[$(($row+1)),$col]=$COMP_SYM
+                                break
+                        fi
+                fi
+        done
+}
+
+function digonal_Condition()
+{
+        local row=0
+        local col=0
+        symbol_1=$1
+        symbol_2=$2
+        if [ ${place_Value[$row,$col]} == $symbol_1 ] &&  [ ${place_Value[$(($row+1)),$(($col+1))]} == $symbol_1 ]
+        then
+                if [ ${place_Value[$(($row+2)),$(($col+2))]} != $symbol_2 ]
+                then
+                        place_Value[$(($row+2)),$(($col+2))]=$COMP_SYM
+                        return
+                fi
+        elif [ ${place_Value[$(($row+1)),$(($col+1))]} == $symbol_1 ] && [ ${place_Value[$(($row+2)),$(($col+2))]} == $symbol_1 ]
+        then
+                if [ ${place_Value[$row,$col]} != $symbol_2 ]
+                then
+                        place_Value[$row,$col]=$COMP_SYM
+                        return
+                fi
+        elif [ ${place_Value[$row,$col]} == $symbol_1 ] && [ ${place_Value[$(($row+2)),$(($col+2))]} == $symbol_1 ]
+        then
+                if [ ${place_Value[$(($row+1)),$(($col+1))]} != $symbol_2 ]
+                then
+                        place_Value[$(($row+1)),$(($col+1))]=$COMP_SYM
+                        return
+                fi
+        elif [ ${place_Value[$(($row+2)),$col]} == $symbol_1 ] &&  [ ${place_Value[$(($row+1)),$(($col+1))]} == $symbol_1 ]
+        then
+                if [ ${place_Value[$row,$(($col+2))]} != $symbol_2 ]
+                then
+                        place_Value[$row,$(($col+2))]=$COMP_SYM
+                        return
+                fi
+        elif [ ${place_Value[$(($row+1)),$(($col+1))]} == $symbol_1 ] && [ ${place_Value[$row,$(($col+2))]} == $symbol_1 ]
+        then
+                if [ ${place_Value[$(($row+2)),$col]} != $symbol_2 ]
+                then
+                        place_Value[$(($row+2)),$col]=$COMP_SYM
+                        return
+                fi
+        elif [ ${place_Value[$(($row+2)),$col]} == $symbol_1 ] && [ ${place_Value[$row,$(($col+2))]} == $symbol_1 ]
+        then
+                if [ ${place_Value[$(($row+1)),$(($col+1))]} != $symbol_2 ]
+                then
+                        place_Value[$(($row+1)),$(($col+1))]=$COMP_SYM
+                        return
+                fi
+        fi
+}
+
 
 function winner()
 {
