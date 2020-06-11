@@ -3,11 +3,9 @@
 echo -e "\nWelcome to Tic Tac Toe Game\n"
 
 #constants
-ROWS=3
-COLUMNS=3
+ROWS_COLUMNS=3
 PLAYER_SYMBOL=''
 COMPUTER_SYMBOL=''
-EMPTY='.'
 
 #variables
 place=1
@@ -17,30 +15,16 @@ declare -A place_Value
 
 function board_Reset()
 {
-	for ((i=0; i<ROWS; i++))
+	for ((i=0; i<ROWS_COLUMNS; i++))
 	do
-		for ((j=0; j<COLUMNS; j++))
+		for ((j=0; j<ROWS_COLUMNS; j++))
 		do
-			place_Value[$i,$j]=$EMPTY
+			place_Value[$i,$j]=$place
+                        ((place++))
 		done
 	done
+	who_is_First
 }
-
-function symbol_Selection()
-{
-
-	select_Symbol=$1
-	case $select_Symbol in
-		1)
-			PLAYER_SYMBOL=X
-			COMPUTER_SYMBOL=O ;;
-		2)
-			PLAYER_SYMBOL=O
-	        	COMPUTER_SYMBOL=X ;;
-	esac
-	echo -e "\nYour Symbol is '$PLAYER_SYMBOL' and Computer's Symbol is '$COMPUTER_SYMBOL'"
-}
-
 
 function who_is_First()
 {
@@ -57,6 +41,77 @@ function who_is_First()
 			select_Symbol=$(($((RANDOM%2))+1))
 			symbol_Selection $select_Symbol ;;
 	esac
+}
+
+function symbol_Selection()
+{
+
+        select_Symbol=$1
+        case $select_Symbol in
+                1)
+                        PLAYER_SYMBOL=X
+                        COMPUTER_SYMBOL=O ;;
+                2)
+                        PLAYER_SYMBOL=O
+                        COMPUTER_SYMBOL=X ;;
+        esac
+        echo -e "\nYour Symbol is '$PLAYER_SYMBOL' and Computer's Symbol is '$COMPUTER_SYMBOL'\n"
+}
+
+function play_Game()
+{
+	board_Reset
+	row=0
+	column=0
+	for (( i=0; i<$(($ROWS_COLUMNS*$ROWS_COLUMNS)); i++ ))
+	do
+		board_Display
+		case $chance in
+			1)
+				echo -e "---------YOUR CHANCE----------\n"
+				player ;;
+			0)
+				echo -e "-------COMPUTER'S CHANCE-------\n"
+				computer ;;
+		esac
+	done
+	board_Display
+}
+
+function player()
+{
+	read -p "Select the number for the Cell you want to mark:  " cell
+	printf "\n"
+	if [ $cell -le $(($ROWS_COLUMNS*$ROWS_COLUMNS)) ]
+	then
+		row=$(( $cell/$ROWS_COLUMNS ))
+		column=$(( $cell%$ROWS_COLUMNS ))
+		case $column in
+			0)
+				row=$(( $row-1 ))
+				column=$(( $column+2 )) ;;
+			*)
+				column=$(( $column-1 )) ;;
+		esac
+		if [ ${place_Value[$row,$column]} == $PLAYER_SYMBOL ] || [ ${place_Value[$row,$column]} == $COMPUTER_SYMBOL ]
+		then
+			echo -e "\nThe cell is already filled. Please select another cell. \n"
+			((i--))
+		else
+			place_Value[$row,$column]=$PLAYER_SYMBOL
+			if [ $(winner $PLAYER_SYMBOL) -eq 1 ]
+			then
+				echo "Congrats You Won !!!"
+			fi
+			chance=0
+		fi
+	fi
+}
+
+function computer()
+{
+	echo "Computer"
+	chance=1
 }
 
 function winner()
@@ -98,22 +153,14 @@ function board_Display()
 	echo -e "****** TicTacToe Game ******\n"
 	local i=0
 	local j=0
-	for (( i=0; i<ROWS; i++ ))
+	for (( i=0; i<ROWS_COLUMNS; i++ ))
 	do
-		for (( j=0; j<COLUMNS; j++ ))
+		for (( j=0; j<ROWS_COLUMNS; j++ ))
 		do
-			place_Value[$i,$j]=$place
-			((place++))
 			echo -n "   ${place_Value[$i,$j]}    "
 		done
 		printf "\n\n"
 	done
-	who_is_First
 }
 
-function play()
-{
-	board_Reset
-	board_Display
-}
-play
+play_Game
