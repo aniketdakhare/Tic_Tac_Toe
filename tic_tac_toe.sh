@@ -143,7 +143,7 @@ function computer_mind() {
                 then
                         return
                 else
-                        corners
+                        corners_Centre_Side
 	                if [ $return_value -eq 9 ]
 	                then
         	                return
@@ -249,7 +249,7 @@ function row_column_digonal_Condition() {
 	fi
 }
 
-function corners() {
+function corners_Centre_Side() {
 	if [ ${place_Value[0,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,0]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[0,0]=$COMPUTER_SYMBOL
@@ -269,6 +269,22 @@ function corners() {
 	elif [ ${place_Value[1,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,1]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[1,1]=$COMPUTER_SYMBOL
+		return 9
+	elif [ ${place_Value[0,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,1]} != $COMPUTER_SYMBOL ]
+	then
+		place_Value[0,1]=$COMPUTER_SYMBOL
+		return 9
+	elif [ ${place_Value[1,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,2]} != $COMPUTER_SYMBOL ]
+	then
+		place_Value[1,2]=$COMPUTER_SYMBOL
+		return 9
+	elif [ ${place_Value[2,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,1]} != $COMPUTER_SYMBOL ]
+	then
+		place_Value[2,1]=$COMPUTER_SYMBOL
+		return 9
+	elif [ ${place_Value[1,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,0]} != $COMPUTER_SYMBOL ]
+	then
+		place_Value[1,0]=$COMPUTER_SYMBOL
 		return 9
 	else
 		return 3
