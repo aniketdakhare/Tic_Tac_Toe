@@ -25,6 +25,20 @@ function board_Reset() {
 	who_is_First
 }
 
+function board_Display() {
+        echo -e "****** TicTacToe Game ******\n"
+        local i=0
+        local j=0
+        for (( i=0; i<ROWS_COLUMNS; i++ ))
+        do
+                for (( j=0; j<ROWS_COLUMNS; j++ ))
+                do
+                        echo -n "   ${place_Value[$i,$j]}    "
+                done
+                printf "\n\n"
+        done
+}
+
 function who_is_First() {
 	toss=$((RANDOM%2))
 	case $toss in
@@ -133,27 +147,21 @@ function computer_mind() {
 	local return_value=''
         row_column_digonal_Condition $COMPUTER_SYMBOL $PLAYER_SYMBOL
 	return_value=$?
-	if [ $return_value -eq 9 ]
+	if [ $return_value -ne 9 ]
 	then
-		return
-	else
 		row_column_digonal_Condition $PLAYER_SYMBOL $COMPUTER_SYMBOL
                 return_value=$?
-                if [ $return_value -eq 9 ]
+                if [ $return_value -ne 9 ]
                 then
-                        return
-                else
                         corners_Centre_Side
-	                if [ $return_value -eq 9 ]
-	                then
-        	                return
-			fi
+        	        return
                 fi
 	fi
+	return
 }
 
 function row_column_digonal_Condition() {
-        local cell_value=0								#ROWS_AND_COLUMNS
+        local cell_value=0														#ROWS_AND_COLUMNS
         symbol_1=$1
         symbol_2=$2
         for ((cell_value=0; cell_value<ROWS_COLUMNS; cell_value++))
@@ -202,7 +210,7 @@ function row_column_digonal_Condition() {
                	        fi
 		fi
         done
-        if [ ${place_Value[0,0]} == $symbol_1 ] &&  [ ${place_Value[1,1]} == $symbol_1 ]					#DIGONAL
+        if [ ${place_Value[0,0]} == $symbol_1 ] &&  [ ${place_Value[1,1]} == $symbol_1 ]							#DIGONALS
         then
                 if [ ${place_Value[2,2]} != $symbol_2 ]
                 then
@@ -253,41 +261,39 @@ function corners_Centre_Side() {
 	if [ ${place_Value[0,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,0]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[0,0]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[0,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,2]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[0,2]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[2,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,0]} != $COMPUTER_SYMBOL ]
 	then
         	place_Value[2,0]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[2,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,2]} != $COMPUTER_SYMBOL ]
 	then
         	place_Value[2,2]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[1,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,1]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[1,1]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[0,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,1]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[0,1]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[1,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,2]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[1,2]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[2,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,1]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[2,1]=$COMPUTER_SYMBOL
-		return 9
+		return
 	elif [ ${place_Value[1,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,0]} != $COMPUTER_SYMBOL ]
 	then
 		place_Value[1,0]=$COMPUTER_SYMBOL
-		return 9
-	else
-		return 3
+		return
 	fi
 }
 
@@ -312,20 +318,6 @@ function winner() {
 	else
 		return 7
 	fi
-}
-
-function board_Display() {
-	echo -e "****** TicTacToe Game ******\n"
-	local i=0
-	local j=0
-	for (( i=0; i<ROWS_COLUMNS; i++ ))
-	do
-		for (( j=0; j<ROWS_COLUMNS; j++ ))
-		do
-			echo -n "   ${place_Value[$i,$j]}    "
-		done
-		printf "\n\n"
-	done
 }
 
 play_Game
