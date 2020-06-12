@@ -87,7 +87,15 @@ function player() {
 	printf "\n"
 	if [ $cell -le $(($ROWS_COLUMNS*$ROWS_COLUMNS)) ]
 	then
-		selection_condition
+	        row=$(( $cell/$ROWS_COLUMNS ))
+	        column=$(( $cell%$ROWS_COLUMNS ))
+	        case $column in
+	                0)
+	                        row=$(( $row-1 ))
+	                        column=$(( $column+2 )) ;;
+	                *)
+	                        column=$(( $column-1 )) ;;
+	        esac
 		if [ ${place_Value[$row,$column]} == $PLAYER_SYMBOL ] || [ ${place_Value[$row,$column]} == $COMPUTER_SYMBOL ]
 		then
 			echo -e "\nThe cell is already filled. Please select another cell. \n"
@@ -109,32 +117,8 @@ function player() {
 	fi
 }
 
-function selection_condition() {
-	row=$(( $cell/$ROWS_COLUMNS ))
-        column=$(( $cell%$ROWS_COLUMNS ))
-        case $column in
-                0)
-                        row=$(( $row-1 ))
-                        column=$(( $column+2 )) ;;
-                *)
-                        column=$(( $column-1 )) ;;
-        esac
-}
-
 function computer() {
 	computer_mind
-	check_cell=$?
-	if [ $check_cell -ne 9 ]
-	then
-                cell=$(($((RANDOM%9))+1))
-                selection_condition
-                if [ ${place_Value[$row,$column]} == $COMPUTER_SYMBOL ] || [ ${place_Value[$row,$column]} == $PLAYER_SYMBOL ]
-                then
-                        ((i--))
-                else
-                        place_Value[$row,$column]=$COMPUTER_SYMBOL
-                fi
-	fi
 	winner $COMPUTER_SYMBOL
         winner_return=$?
         if [ $winner_return -eq 1 ]
@@ -151,15 +135,19 @@ function computer_mind() {
 	return_value=$?
 	if [ $return_value -eq 9 ]
 	then
-		return 9
+		return
 	else
 		row_column_digonal_Condition $PLAYER_SYMBOL $COMPUTER_SYMBOL
                 return_value=$?
                 if [ $return_value -eq 9 ]
                 then
-                        return 9
+                        return
                 else
-                        return 3
+                        corners
+	                if [ $return_value -eq 9 ]
+	                then
+        	                return
+			fi
                 fi
 	fi
 }
@@ -170,48 +158,48 @@ function row_column_digonal_Condition() {
         symbol_2=$2
         for ((cell_value=0; cell_value<ROWS_COLUMNS; cell_value++))
         do
-                if [ ${place_Value[$cell_value,0]} == $symbol_1 ] && [ ${place_Value[$(($cell_value)),1]} == $symbol_1 ]
-                then
-                        if [ ${place_Value[$cell_value,2]} != $symbol_2 ]
-                        then
-                                place_Value[$cell_value,2]=$COMPUTER_SYMBOL
-                                return 9
-                        fi
-                elif [ ${place_Value[$cell_value,1]} == $symbol_1 ] && [ ${place_Value[$cell_value,2]} == $symbol_1 ]
-                then
-                        if [ ${place_Value[$cell_value,0]} != $symbol_2 ]
-                        then
-                                place_Value[$cell_value,0]=$COMPUTER_SYMBOL
-                                return 9
-                        fi
-                elif [ ${place_Value[$cell_value,0]} == $symbol_1 ] && [ ${place_Value[$cell_value,2]} == $symbol_1 ]
-                then
-                        if [ ${place_Value[$cell_value,1]} != $symbol_2 ]
-                        then
-                                place_Value[$cell_value,1]=$COMPUTER_SYMBOL
-                                return 9
-                        fi
-                elif [ ${place_Value[0,$cell_value]} == $symbol_1 ] && [ ${place_Value[1,$cell_value]} == $symbol_1 ]
-                then
-                        if [ ${place_Value[2,$cell_value]} != $symbol_2 ]
-                        then
-                                place_Value[2,$cell_value]=$COMPUTER_SYMBOL
+               	if [ ${place_Value[$cell_value,0]} == $symbol_1 ] && [ ${place_Value[$(($cell_value)),1]} == $symbol_1 ]
+               	then
+                       	if [ ${place_Value[$cell_value,2]} != $symbol_2 ]
+                       	then
+                               	place_Value[$cell_value,2]=$COMPUTER_SYMBOL
+                               	return 9
+                       	fi
+               	elif [ ${place_Value[$cell_value,1]} == $symbol_1 ] && [ ${place_Value[$cell_value,2]} == $symbol_1 ]
+               	then
+               	        if [ ${place_Value[$cell_value,0]} != $symbol_2 ]
+               	        then
+               	                place_Value[$cell_value,0]=$COMPUTER_SYMBOL
+               	                return 9
+               	        fi
+               	elif [ ${place_Value[$cell_value,0]} == $symbol_1 ] && [ ${place_Value[$cell_value,2]} == $symbol_1 ]
+               	then
+               	        if [ ${place_Value[$cell_value,1]} != $symbol_2 ]
+               	        then
+               	                place_Value[$cell_value,1]=$COMPUTER_SYMBOL
+               	                return 9
+               	        fi
+               	elif [ ${place_Value[0,$cell_value]} == $symbol_1 ] && [ ${place_Value[1,$cell_value]} == $symbol_1 ]
+               	then
+               	        if [ ${place_Value[2,$cell_value]} != $symbol_2 ]
+               	        then
+               	                place_Value[2,$cell_value]=$COMPUTER_SYMBOL
 				return 9
-                        fi
-                elif [ ${place_Value[1,$cell_value]} == $symbol_1 ] && [ ${place_Value[2,$cell_value]} == $symbol_1 ]
-                then
-                        if [ ${place_Value[0,$cell_value]} != $symbol_2 ]
-                        then
-                                place_Value[0,$cell_value]=$COMPUTER_SYMBOL
-                                return 9
-                        fi
-                elif [ ${place_Value[0,$cell_value]} == $symbol_1 ] && [ ${place_Value[2,$cell_value]} == $symbol_1 ]
-                then
-                        if [ ${place_Value[1,$cell_value]} != $symbol_2 ]
-                        then
-                                place_Value[1,$cell_value]=$COMPUTER_SYMBOL
-                                return 9
-                        fi
+               	        fi
+               	elif [ ${place_Value[1,$cell_value]} == $symbol_1 ] && [ ${place_Value[2,$cell_value]} == $symbol_1 ]
+               	then
+               	        if [ ${place_Value[0,$cell_value]} != $symbol_2 ]
+               	        then
+               	                place_Value[0,$cell_value]=$COMPUTER_SYMBOL
+               	                return 9
+               	        fi
+               	elif [ ${place_Value[0,$cell_value]} == $symbol_1 ] && [ ${place_Value[2,$cell_value]} == $symbol_1 ]
+               	then
+               	        if [ ${place_Value[1,$cell_value]} != $symbol_2 ]
+               	        then
+               	                place_Value[1,$cell_value]=$COMPUTER_SYMBOL
+               	                return 9
+               	        fi
 		fi
         done
         if [ ${place_Value[0,0]} == $symbol_1 ] &&  [ ${place_Value[1,1]} == $symbol_1 ]					#DIGONAL
@@ -256,6 +244,30 @@ function row_column_digonal_Condition() {
                         place_Value[1,1]=$COMPUTER_SYMBOL
                         return 9
                 fi
+	else
+		return 3
+	fi
+}
+
+function corners() {
+	if [ ${place_Value[0,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,0]} != $COMPUTER_SYMBOL ]
+	then
+		place_Value[0,0]=$COMPUTER_SYMBOL
+		return 9
+	elif [ ${place_Value[0,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,2]} != $COMPUTER_SYMBOL ]
+	then
+		place_Value[0,2]=$COMPUTER_SYMBOL
+		return 9
+	elif [ ${place_Value[2,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,0]} != $COMPUTER_SYMBOL ]
+	then
+        	place_Value[2,0]=$COMPUTER_SYMBOL
+		return 9
+	elif [ ${place_Value[2,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,2]} != $COMPUTER_SYMBOL ]
+	then
+        	place_Value[2,2]=$COMPUTER_SYMBOL
+		return 9
+	else
+		return 3
 	fi
 }
 
