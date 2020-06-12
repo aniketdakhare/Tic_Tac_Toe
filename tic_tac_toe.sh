@@ -266,6 +266,10 @@ function corners() {
 	then
         	place_Value[2,2]=$COMPUTER_SYMBOL
 		return 9
+	elif [ ${place_Value[1,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,1]} != $COMPUTER_SYMBOL ]
+	then
+		place_Value[1,1]=$COMPUTER_SYMBOL
+		return 9
 	else
 		return 3
 	fi
