@@ -11,21 +11,23 @@ COMPUTER_SYMBOL=''
 place=1
 chance=''
 
-declare -A place_Value
+declare -A placeValue
 
-function board_Reset() {
+#Function  to Resets the board
+function boardReset() {
 	for ((i=0; i<ROWS_COLUMNS; i++))
 	do
 		for ((j=0; j<ROWS_COLUMNS; j++))
 		do
-			place_Value[$i,$j]=$place
+			placeValue[$i,$j]=$place
                         ((place++))
 		done
 	done
-	who_is_First
+	firstChance
 }
 
-function board_Display() {
+#function to Display the board
+function boardDisplay() {
         echo -e "****** TicTacToe Game ******\n"
         local i=0
         local j=0
@@ -33,31 +35,33 @@ function board_Display() {
         do
                 for (( j=0; j<ROWS_COLUMNS; j++ ))
                 do
-                        echo -n "   ${place_Value[$i,$j]}    "
+                        echo -n "   ${placeValue[$i,$j]}    "
                 done
                 printf "\n\n"
         done
 }
 
-function who_is_First() {
+#Function to check who can play first
+function firstChance() {
 	toss=$((RANDOM%2))
 	case $toss in
 		1)
 			chance=$toss
 			echo -e "You won the toss. It's your Chance \nSelect the valid option for symbol: \n\n1. 'X' \n\n2. 'O' "
-			read select_Symbol
-			symbol_Selection $select_Symbol ;;
+			read selectSymbol
+			symbolSelection $selectSymbol ;;
 		0)
 			chance=$toss
 			echo -e "Computer Won the toss. It's Computer's Chance\n"
-			select_Symbol=$(($((RANDOM%2))+1))
-			symbol_Selection $select_Symbol ;;
+			selectSymbol=$(($((RANDOM%2))+1))
+			symbolSelection $selectSymbol ;;
 	esac
 }
 
-function symbol_Selection() {
-        select_Symbol=$1
-        case $select_Symbol in
+#Funtion to select the Symbol as X or O
+function symbolSelection() {
+        selectSymbol=$1
+        case $selectSymbol in
                 1)
                         PLAYER_SYMBOL=X
                         COMPUTER_SYMBOL=O ;;
@@ -68,34 +72,36 @@ function symbol_Selection() {
         echo -e "\nYour Symbol is '$PLAYER_SYMBOL' and Computer's Symbol is '$COMPUTER_SYMBOL'\n"
 }
 
-function play_Game() {
-	board_Reset
+#Main function to start game
+function playGame() {
+	boardReset
 	row=0
 	column=0
 	for (( i=0; i<$(($ROWS_COLUMNS*$ROWS_COLUMNS)); i++ ))
 	do
-		board_Display
-		check_win=2
+		boardDisplay
+		checkWin=2
 		case $chance in
 			1)
 				echo -e "---------YOUR CHANCE----------\n"
 				player
-				check_win=$? ;;
+				checkWin=$? ;;
 			0)
 				echo -e "-------COMPUTER CHANCE--------\n"
 				computer
-				check_win=$? ;;
+				checkWin=$? ;;
 		esac
-		if [ $check_win -eq 5 ]
+		if [ $checkWin -eq 5 ]
                 then
-			board_Display
+			boardDisplay
                 	return 0
                 fi
 	done
 	echo -e "----Match Tie----\n"
-	board_Display
+	boardDisplay
 }
 
+#Function for the player to play game.
 function player() {
 	read -p "Select the number for the Cell you want to mark:  " cell
 	printf "\n"
@@ -110,15 +116,15 @@ function player() {
 	                *)
 	                        column=$(( $column-1 )) ;;
 	        esac
-		if [ ${place_Value[$row,$column]} == $PLAYER_SYMBOL ] || [ ${place_Value[$row,$column]} == $COMPUTER_SYMBOL ]
+		if [ ${placeValue[$row,$column]} == $PLAYER_SYMBOL ] || [ ${placeValue[$row,$column]} == $COMPUTER_SYMBOL ]
 		then
 			echo -e "\nThe cell is already filled. Please select another cell. \n"
 			((i--))
 		else
-			place_Value[$row,$column]=$PLAYER_SYMBOL
+			placeValue[$row,$column]=$PLAYER_SYMBOL
 			winner $PLAYER_SYMBOL
-			winner_return=$?
-			if [ $winner_return -eq 1 ]
+			winnerReturn=$?
+			if [ $winnerReturn -eq 1 ]
 			then
 				echo -e "Congrats You Won !!!\n"
 				return 5
@@ -131,11 +137,12 @@ function player() {
 	fi
 }
 
+#Function for the computer to play game.
 function computer() {
-	computer_mind
+	computerMind
 	winner $COMPUTER_SYMBOL
-        winner_return=$?
-        if [ $winner_return -eq 1 ]
+        winnerReturn=$?
+        if [ $winnerReturn -eq 1 ]
         then
                 echo -e "Computer Won !!!\n"
                 return 5
@@ -143,113 +150,115 @@ function computer() {
 	chance=1
 }
 
-function computer_mind() {
-	local return_value=''
-        row_column_digonal_Condition $COMPUTER_SYMBOL $PLAYER_SYMBOL
-	return_value=$?
-	if [ $return_value -ne 9 ]
+#Function for the computer to think like human inorder to play game
+function computerMind() {
+	local returnValue=''
+        rowColumnDigonalCondition $COMPUTER_SYMBOL $PLAYER_SYMBOL
+	returnValue=$?
+	if [ $returnValue -ne 9 ]
 	then
-		row_column_digonal_Condition $PLAYER_SYMBOL $COMPUTER_SYMBOL
-                return_value=$?
-                if [ $return_value -ne 9 ]
+		rowColumnDigonalCondition $PLAYER_SYMBOL $COMPUTER_SYMBOL
+                returnValue=$?
+                if [ $returnValue -ne 9 ]
                 then
-                        corners_Centre_Side
+                        cornersCentreSide
         	        return
                 fi
 	fi
 	return
 }
 
-function row_column_digonal_Condition() {
-        local cell_value=0														#ROWS_AND_COLUMNS
-        symbol_1=$1
-        symbol_2=$2
-        for ((cell_value=0; cell_value<ROWS_COLUMNS; cell_value++))
+#Function for the computer to determine condition for checking winning places and blocking the player
+function rowColumnDigonalCondition() {
+        local cellValue=0
+        symbol1=$1
+        symbol2=$2
+        for ((cellValue=0; cellValue<ROWS_COLUMNS; cellValue++))
         do
-               	if [ ${place_Value[$cell_value,0]} == $symbol_1 ] && [ ${place_Value[$(($cell_value)),1]} == $symbol_1 ]
+               	if [ ${placeValue[$cellValue,0]} == $symbol1 ] && [ ${placeValue[$(($cellValue)),1]} == $symbol1 ]
                	then
-                       	if [ ${place_Value[$cell_value,2]} != $symbol_2 ]
+                       	if [ ${placeValue[$cellValue,2]} != $symbol2 ]
                        	then
-                               	place_Value[$cell_value,2]=$COMPUTER_SYMBOL
+                               	placeValue[$cellValue,2]=$COMPUTER_SYMBOL
                                	return 9
                        	fi
-               	elif [ ${place_Value[$cell_value,1]} == $symbol_1 ] && [ ${place_Value[$cell_value,2]} == $symbol_1 ]
+               	elif [ ${placeValue[$cellValue,1]} == $symbol1 ] && [ ${placeValue[$cellValue,2]} == $symbol1 ]
                	then
-               	        if [ ${place_Value[$cell_value,0]} != $symbol_2 ]
+               	        if [ ${placeValue[$cellValue,0]} != $symbol2 ]
                	        then
-               	                place_Value[$cell_value,0]=$COMPUTER_SYMBOL
+               	                placeValue[$cellValue,0]=$COMPUTER_SYMBOL
                	                return 9
                	        fi
-               	elif [ ${place_Value[$cell_value,0]} == $symbol_1 ] && [ ${place_Value[$cell_value,2]} == $symbol_1 ]
+               	elif [ ${placeValue[$cellValue,0]} == $symbol1 ] && [ ${placeValue[$cellValue,2]} == $symbol1 ]
                	then
-               	        if [ ${place_Value[$cell_value,1]} != $symbol_2 ]
+               	        if [ ${placeValue[$cellValue,1]} != $symbol2 ]
                	        then
-               	                place_Value[$cell_value,1]=$COMPUTER_SYMBOL
+               	                placeValue[$cellValue,1]=$COMPUTER_SYMBOL
                	                return 9
                	        fi
-               	elif [ ${place_Value[0,$cell_value]} == $symbol_1 ] && [ ${place_Value[1,$cell_value]} == $symbol_1 ]
+               	elif [ ${placeValue[0,$cellValue]} == $symbol1 ] && [ ${placeValue[1,$cellValue]} == $symbol1 ]
                	then
-               	        if [ ${place_Value[2,$cell_value]} != $symbol_2 ]
+               	        if [ ${placeValue[2,$cellValue]} != $symbol2 ]
                	        then
-               	                place_Value[2,$cell_value]=$COMPUTER_SYMBOL
+               	                placeValue[2,$cellValue]=$COMPUTER_SYMBOL
 				return 9
                	        fi
-               	elif [ ${place_Value[1,$cell_value]} == $symbol_1 ] && [ ${place_Value[2,$cell_value]} == $symbol_1 ]
+               	elif [ ${placeValue[1,$cellValue]} == $symbol1 ] && [ ${placeValue[2,$cellValue]} == $symbol1 ]
                	then
-               	        if [ ${place_Value[0,$cell_value]} != $symbol_2 ]
+               	        if [ ${placeValue[0,$cellValue]} != $symbol2 ]
                	        then
-               	                place_Value[0,$cell_value]=$COMPUTER_SYMBOL
+               	                placeValue[0,$cellValue]=$COMPUTER_SYMBOL
                	                return 9
                	        fi
-               	elif [ ${place_Value[0,$cell_value]} == $symbol_1 ] && [ ${place_Value[2,$cell_value]} == $symbol_1 ]
+               	elif [ ${placeValue[0,$cellValue]} == $symbol1 ] && [ ${placeValue[2,$cellValue]} == $symbol1 ]
                	then
-               	        if [ ${place_Value[1,$cell_value]} != $symbol_2 ]
+               	        if [ ${placeValue[1,$cellValue]} != $symbol2 ]
                	        then
-               	                place_Value[1,$cell_value]=$COMPUTER_SYMBOL
+               	                placeValue[1,$cellValue]=$COMPUTER_SYMBOL
                	                return 9
                	        fi
 		fi
         done
-        if [ ${place_Value[0,0]} == $symbol_1 ] &&  [ ${place_Value[1,1]} == $symbol_1 ]							#DIGONALS
+        if [ ${placeValue[0,0]} == $symbol1 ] &&  [ ${placeValue[1,1]} == $symbol1 ]
         then
-                if [ ${place_Value[2,2]} != $symbol_2 ]
+                if [ ${placeValue[2,2]} != $symbol2 ]
                 then
-                        place_Value[2,2]=$COMPUTER_SYMBOL
+                        placeValue[2,2]=$COMPUTER_SYMBOL
                         return 9
                 fi
-        elif [ ${place_Value[1,1]} == $symbol_1 ] && [ ${place_Value[2,2]} == $symbol_1 ]
+        elif [ ${placeValue[1,1]} == $symbol1 ] && [ ${placeValue[2,2]} == $symbol1 ]
         then
-                if [ ${place_Value[0,0]} != $symbol_2 ]
+                if [ ${placeValue[0,0]} != $symbol2 ]
                 then
-                        place_Value[0,0]=$COMPUTER_SYMBOL
+                        placeValue[0,0]=$COMPUTER_SYMBOL
                         return 9
                 fi
-        elif [ ${place_Value[0,0]} == $symbol_1 ] && [ ${place_Value[2,2]} == $symbol_1 ]
+        elif [ ${placeValue[0,0]} == $symbol1 ] && [ ${placeValue[2,2]} == $symbol1 ]
         then
-                if [ ${place_Value[1,1]} != $symbol_2 ]
+                if [ ${placeValue[1,1]} != $symbol2 ]
                 then
-                        place_Value[1,1]=$COMPUTER_SYMBOL
+                        placeValue[1,1]=$COMPUTER_SYMBOL
                         return 9
                 fi
-        elif [ ${place_Value[2,0]} == $symbol_1 ] &&  [ ${place_Value[1,1]} == $symbol_1 ]
+        elif [ ${placeValue[2,0]} == $symbol1 ] &&  [ ${placeValue[1,1]} == $symbol1 ]
         then
-                if [ ${place_Value[0,2]} != $symbol_2 ]
+                if [ ${placeValue[0,2]} != $symbol2 ]
                 then
-                        place_Value[0,2]=$COMPUTER_SYMBOL
+                        placeValue[0,2]=$COMPUTER_SYMBOL
                         return 9
                 fi
-        elif [ ${place_Value[1,1]} == $symbol_1 ] && [ ${place_Value[0,2]} == $symbol_1 ]
+        elif [ ${placeValue[1,1]} == $symbol1 ] && [ ${placeValue[0,2]} == $symbol1 ]
         then
-                if [ ${place_Value[2,0]} != $symbol_2 ]
+                if [ ${placeValue[2,0]} != $symbol2 ]
                 then
-                        place_Value[2,0]=$COMPUTER_SYMBOL
+                        placeValue[2,0]=$COMPUTER_SYMBOL
                         return 9
                 fi
-        elif [ ${place_Value[2,0]} == $symbol_1 ] && [ ${place_Value[0,2]} == $symbol_1 ]
+        elif [ ${placeValue[2,0]} == $symbol1 ] && [ ${placeValue[0,2]} == $symbol1 ]
         then
-                if [ ${place_Value[1,1]} != $symbol_2 ]
+                if [ ${placeValue[1,1]} != $symbol2 ]
                 then
-                        place_Value[1,1]=$COMPUTER_SYMBOL
+                        placeValue[1,1]=$COMPUTER_SYMBOL
                         return 9
                 fi
 	else
@@ -257,62 +266,64 @@ function row_column_digonal_Condition() {
 	fi
 }
 
-function corners_Centre_Side() {
-	if [ ${place_Value[0,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,0]} != $COMPUTER_SYMBOL ]
+#Function for the computer to determine condition for grtting to the corners, centre and any of the sides
+function cornersCentreSide() {
+	if [ ${placeValue[0,0]} != $PLAYER_SYMBOL ] && [ ${placeValue[0,0]} != $COMPUTER_SYMBOL ]
 	then
-		place_Value[0,0]=$COMPUTER_SYMBOL
+		placeValue[0,0]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[0,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,2]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[0,2]} != $PLAYER_SYMBOL ] && [ ${placeValue[0,2]} != $COMPUTER_SYMBOL ]
 	then
-		place_Value[0,2]=$COMPUTER_SYMBOL
+		placeValue[0,2]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[2,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,0]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[2,0]} != $PLAYER_SYMBOL ] && [ ${placeValue[2,0]} != $COMPUTER_SYMBOL ]
 	then
-        	place_Value[2,0]=$COMPUTER_SYMBOL
+        	placeValue[2,0]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[2,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,2]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[2,2]} != $PLAYER_SYMBOL ] && [ ${placeValue[2,2]} != $COMPUTER_SYMBOL ]
 	then
-        	place_Value[2,2]=$COMPUTER_SYMBOL
+        	placeValue[2,2]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[1,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,1]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[1,1]} != $PLAYER_SYMBOL ] && [ ${placeValue[1,1]} != $COMPUTER_SYMBOL ]
 	then
-		place_Value[1,1]=$COMPUTER_SYMBOL
+		placeValue[1,1]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[0,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[0,1]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[0,1]} != $PLAYER_SYMBOL ] && [ ${placeValue[0,1]} != $COMPUTER_SYMBOL ]
 	then
-		place_Value[0,1]=$COMPUTER_SYMBOL
+		placeValue[0,1]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[1,2]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,2]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[1,2]} != $PLAYER_SYMBOL ] && [ ${placeValue[1,2]} != $COMPUTER_SYMBOL ]
 	then
-		place_Value[1,2]=$COMPUTER_SYMBOL
+		placeValue[1,2]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[2,1]} != $PLAYER_SYMBOL ] && [ ${place_Value[2,1]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[2,1]} != $PLAYER_SYMBOL ] && [ ${placeValue[2,1]} != $COMPUTER_SYMBOL ]
 	then
-		place_Value[2,1]=$COMPUTER_SYMBOL
+		placeValue[2,1]=$COMPUTER_SYMBOL
 		return
-	elif [ ${place_Value[1,0]} != $PLAYER_SYMBOL ] && [ ${place_Value[1,0]} != $COMPUTER_SYMBOL ]
+	elif [ ${placeValue[1,0]} != $PLAYER_SYMBOL ] && [ ${placeValue[1,0]} != $COMPUTER_SYMBOL ]
 	then
-		place_Value[1,0]=$COMPUTER_SYMBOL
+		placeValue[1,0]=$COMPUTER_SYMBOL
 		return
 	fi
 }
 
+#Function to check the winning conditions
 function winner() {
 	local mark=$1
 	for ((value=0; value<ROWS_COLUMNS; value++))
 	do
-		if [ ${place_Value[$value,0]} == $mark ] && [ ${place_Value[$value,1]} == $mark ] && [ ${place_Value[$value,2]} == $mark ]
+		if [ ${placeValue[$value,0]} == $mark ] && [ ${placeValue[$value,1]} == $mark ] && [ ${placeValue[$value,2]} == $mark ]
 		then
 			return 1
-		elif [ ${place_Value[0,$value]} == $mark ] && [ ${place_Value[1,$value]} == $mark ] && [ ${place_Value[2,$value]} == $mark ]
+		elif [ ${placeValue[0,$value]} == $mark ] && [ ${placeValue[1,$value]} == $mark ] && [ ${placeValue[2,$value]} == $mark ]
                 then
                         return 1
                 fi
 	done
-	if [ ${place_Value[0,0]} == $mark ] && [ ${place_Value[1,1]} == $mark ] && [ ${place_Value[2,2]} == $mark ]
+	if [ ${placeValue[0,0]} == $mark ] && [ ${placeValue[1,1]} == $mark ] && [ ${placeValue[2,2]} == $mark ]
 	then
 		return 1
-	elif [ ${place_Value[2,0]} == $mark ] && [ ${place_Value[1,1]} == $mark ] && [ ${place_Value[0,2]} == $mark ]
+	elif [ ${placeValue[2,0]} == $mark ] && [ ${placeValue[1,1]} == $mark ] && [ ${placeValue[0,2]} == $mark ]
 	then
 		return 1
 	else
@@ -320,4 +331,5 @@ function winner() {
 	fi
 }
 
-play_Game
+#Main function call
+playGame
